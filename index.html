@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MANIL ProEx · The Phoenix Moon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#E8C872;
+  --gold-deep:#B8860B;
+  --ink:#050505;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;height:100%;background:#020202;color:var(--gold);font-family:'Prompt',sans-serif;overflow:hidden;user-select:none}
+#void{position:fixed;inset:0;z-index:0;background:
+  radial-gradient(ellipse at 50% 42%, rgba(184,134,11,.18) 0%, rgba(8,6,2,.55) 38%, #010101 72%),
+  radial-gradient(circle at 18% 78%, rgba(80,50,10,.12), transparent 42%),
+  radial-gradient(circle at 82% 18%, rgba(212,175,55,.08), transparent 36%),
+  #010101}
+#kintsugi-canvas{position:fixed;inset:0;z-index:1;width:100%;height:100%}
+.vignette{position:fixed;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse at center, transparent 48%, rgba(0,0,0,.72) 100%)}
+.interface{position:relative;z-index:4;width:100%;height:100%;pointer-events:none}
+.header{text-align:center;padding-top:max(28px,env(safe-area-inset-top));animation:rise 2.4s ease both}
+.sigil{font-size:.62rem;letter-spacing:.55em;color:rgba(232,200,114,.55);margin-bottom:8px}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.35rem,6vw,2.7rem);letter-spacing:.28em;margin:0;text-shadow:0 0 28px rgba(232,200,114,.45),0 0 80px rgba(184,134,11,.25)}
+h2{font-weight:300;font-size:clamp(.72rem,2.6vw,1rem);letter-spacing:.22em;color:#9a9a9a;margin:10px 0 0}
+.compass-stage{position:absolute;top:52%;left:50%;transform:translate(-50%,-50%);width:min(92vw,640px);height:min(92vw,640px);pointer-events:none}
+.ring{position:absolute;inset:0;border-radius:50%;pointer-events:none}
+.ring-a{inset:4%;border:1px solid rgba(232,200,114,.22);box-shadow:0 0 40px rgba(184,134,11,.08) inset}
+.ring-b{inset:11%;border:1px dashed rgba(232,200,114,.28);animation:spin 80s linear infinite}
+.ring-c{inset:18%;border:1px solid rgba(232,200,114,.12);animation:spin-rev 140s linear infinite}
+.ticks{position:absolute;inset:7%;animation:spin 120s linear infinite}
+.tick{position:absolute;left:50%;top:0;width:1px;height:10px;background:rgba(232,200,114,.45);transform-origin:50% calc(min(46vw,320px) - 7%)}
+.core-wrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:auto}
+.core{
+  width:132px;height:132px;border-radius:50%;
+  border:1.5px solid rgba(232,200,114,.7);
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255,236,180,.35), transparent 32%),
+    radial-gradient(circle at 50% 50%, rgba(40,30,8,.95) 0%, rgba(8,6,2,.2) 70%);
+  box-shadow:0 0 24px rgba(232,200,114,.35),0 0 80px rgba(184,134,11,.22),inset 0 0 24px rgba(232,200,114,.12);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;
+  font-family:'Cinzel',serif;letter-spacing:.18em
+}
+.core:hover,.core:active{transform:scale(1.08);box-shadow:0 0 40px rgba(255,230,160,.55),0 0 120px rgba(232,200,114,.35)}
+.core b{font-size:.95rem;font-weight:700}
+.core span{font-family:'Prompt',sans-serif;font-size:.55rem;letter-spacing:.28em;color:#aaa;margin-top:6px}
+.halo{position:absolute;inset:-18px;border-radius:50%;border:1px solid rgba(232,200,114,.2);animation:pulse 3.6s ease-in-out infinite;pointer-events:none}
+.nodes{position:absolute;inset:0;pointer-events:none}
+.node{
+  position:absolute;width:168px;padding:14px 14px 14px 16px;pointer-events:auto;
+  background:linear-gradient(180deg,rgba(12,10,6,.82),rgba(6,5,3,.72));
+  border:1px solid rgba(232,200,114,.28);border-left:3px solid var(--gold);
+  backdrop-filter:blur(10px);cursor:crosshair;transition:transform .3s,box-shadow .3s,background .3s
+}
+.node:hover{transform:scale(1.05);background:rgba(232,200,114,.14);box-shadow:0 0 28px rgba(232,200,114,.25)}
+.node-title{font-family:'Cinzel',serif;font-weight:700;font-size:.86rem;letter-spacing:.12em;margin-bottom:6px;text-transform:uppercase}
+.node-desc{font-size:.72rem;line-height:1.45;color:#c8c8c8}
+.n{top:7%;left:50%;transform:translateX(-50%)}
+.e{top:50%;right:1%;transform:translateY(-50%)}
+.s{bottom:7%;left:50%;transform:translateX(-50%)}
+.w{top:50%;left:1%;transform:translateY(-50%)}
+.shock{position:fixed;left:50%;top:52%;width:20px;height:20px;border:2px solid rgba(232,200,114,.0);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:6}
+.footer{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:.62rem;letter-spacing:.28em;color:rgba(232,200,114,.38)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin-rev{to{transform:rotate(-360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.12);opacity:.15}}
+@keyframes rise{from{opacity:0;filter:blur(12px);transform:translateY(8px)}to{opacity:1;filter:none;transform:none}}
+@media (max-width:720px){
+  .node{width:128px;padding:10px}
+  .node-title{font-size:.68rem}
+  .node-desc{font-size:.6rem}
+  .core{width:108px;height:108px}
+  .e{right:-2%} .w{left:-2%}
+}
+</style>
+</head>
+<body>
+<div id="void"></div>
+<canvas id="kintsugi-canvas"></canvas>
+<div class="vignette"></div>
+<div class="interface">
+  <div class="header">
+    <div class="sigil">MANIL PROEX</div>
+    <h1>DR. BLUEGRAY</h1>
+    <h2>THE BRIDGE YEAR · SINCERELY & HONESTLY</h2>
+  </div>
+  <div class="compass-stage">
+    <div class="ring ring-a"></div>
+    <div class="ring ring-b"></div>
+    <div class="ring ring-c"></div>
+    <div class="ticks" id="ticks"></div>
+    <div class="nodes">
+      <div class="node n" onmouseenter="setGravity(this,2)" onmouseleave="releaseGravity()">
+        <div class="node-title">Neuroscience</div>
+        <div class="node-desc">Biological Restoration. ปกป้อง HP ไร้พันธะพิษ</div>
+      </div>
+      <div class="node e" onmouseenter="setGravity(this,2)" onmouseleave="releaseGravity()">
+        <div class="node-title">Stop Output</div>
+        <div class="node-desc">Let it happen, let it flow. ไม่กดให้ผลิต</div>
+      </div>
+      <div class="node s" onmouseenter="setGravity(this,2)" onmouseleave="releaseGravity()">
+        <div class="node-title">Depth Psychology</div>
+        <div class="node-desc">ดูกลไกป้องกัน โดยไม่เปิดสงครามในหัว</div>
+      </div>
+      <div class="node w" onmouseenter="setGravity(this,2)" onmouseleave="releaseGravity()">
+        <div class="node-title">Kintsugi Art</div>
+        <div class="node-desc">หลอมปวดดิบเป็นเรื่อง ไม่ใช่โชว์รอยแตก</div>
+      </div>
+    </div>
+    <div class="core-wrap">
+      <div class="halo"></div>
+      <div class="core" id="core-node" onmouseenter="setGravity(this,4)" onmouseleave="releaseGravity()" onclick="triggerPhoenixBurst()">
+        <b>THE MOON</b>
+        <span>BURST</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer">CLICK THE CORE · LET IT FLOW</div>
+</div>
+<div class="shock" id="shock"></div>
+<script>
+const ticks=document.getElementById('ticks');
+for(let i=0;i<72;i++){
+  const t=document.createElement('div');
+  t.className='tick';
+  const h=i%6===0?16:i%3===0?11:6;
+  t.style.height=h+'px';
+  t.style.opacity=i%6===0?.8:.35;
+  t.style.transform=`rotate(${i*5}deg)`;
+  t.style.transformOrigin='50% calc(min(46vw, 320px) - 7%)';
+  ticks.appendChild(t);
+}
+const canvas=document.getElementById('kintsugi-canvas');
+const ctx=canvas.getContext('2d');
+let W,H,parts=[],gPoint=null,gStr=0,bursting=false;
+function resize(){
+  W=canvas.width=innerWidth;H=canvas.height=innerHeight;
+  const n=Math.min(220,Math.floor((W*H)/9000));
+  parts=[];
+  for(let i=0;i<n;i++) parts.push(P());
+}
+function P(x,y,burst=false){
+  return{
+    x:x??Math.random()*W,y:y??Math.random()*H,
+    vx:(Math.random()-.5)*(burst?22:.7),
+    vy:(Math.random()-.5)*(burst?22:.7),
+    r:burst?Math.random()*2.4+.4:Math.random()*1.6+.3,
+    a:Math.random()*.65+.2,
+    m:Math.random()*2+1,
+    burst,life:burst?90:1e9,
+    hue:burst?(Math.random()>.3?'232,200,114':'255,244,210'):'232,200,114'
+  };
+}
+function setGravity(el,s){
+  if(bursting)return;
+  const r=el.getBoundingClientRect();
+  gPoint={x:r.left+r.width/2,y:r.top+r.height/2};gStr=s;
+}
+function releaseGravity(){if(!bursting){gPoint=null;gStr=0}}
+function triggerPhoenixBurst(){
+  if(bursting)return;bursting=true;gPoint=null;
+  const r=document.getElementById('core-node').getBoundingClientRect();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  parts.forEach(p=>{
+    const dx=p.x-cx,dy=p.y-cy,d=Math.hypot(dx,dy)||1;
+    p.vx=(dx/d)*16;p.vy=(dy/d)*16;
+  });
+  for(let i=0;i<260;i++) parts.push(P(cx,cy,true));
+  const sh=document.getElementById('shock');
+  sh.style.transition='none';
+  sh.style.width='20px';sh.style.height='20px';
+  sh.style.borderColor='rgba(232,200,114,.85)';
+  sh.style.opacity='1';
+  requestAnimationFrame(()=>{
+    sh.style.transition='width 1.05s cubic-bezier(.1,.7,.2,1),height 1.05s cubic-bezier(.1,.7,.2,1),opacity 1.05s';
+    sh.style.width='140vmax';sh.style.height='140vmax';sh.style.opacity='0';
+  });
+  tone();
+  setTimeout(()=>{bursting=false;parts=parts.filter(p=>!p.burst||p.life>0)},1200);
+}
+function tone(){
+  try{
+    const ac=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type='sine';o.frequency.setValueAtTime(220,ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(880,ac.currentTime+.12);
+    o.frequency.exponentialRampToValueAtTime(330,ac.currentTime+.7);
+    g.gain.setValueAtTime(.0001,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.08,ac.currentTime+.04);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.1);
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+1.15);
+  }catch(e){}
+}
+function step(p){
+  p.x+=p.vx;p.y+=p.vy;
+  if(!p.burst){
+    if(p.x<0||p.x>W)p.vx*=-1;
+    if(p.y<0||p.y>H)p.vy*=-1;
+  }
+  if(gPoint&&!p.burst&&!bursting){
+    const dx=gPoint.x-p.x,dy=gPoint.y-p.y,d=Math.hypot(dx,dy);
+    if(d>6&&d<720){
+      const f=(gStr*110)/(d*p.m);
+      p.vx+=(dx/d)*f*.08;p.vy+=(dy/d)*f*.08;
+      const sp=Math.hypot(p.vx,p.vy);
+      if(sp>5){p.vx=p.vx/sp*5;p.vy=p.vy/sp*5}
+    }
+  }else if(!p.burst){
+    p.vx*=.985;p.vy*=.985;
+    if(Math.abs(p.vx)<.28)p.vx+=(Math.random()-.5)*.12;
+    if(Math.abs(p.vy)<.28)p.vy+=(Math.random()-.5)*.12;
+  }
+  if(p.burst){p.life--;p.a*=.955}
+}
+function draw(){
+  ctx.fillStyle='rgba(2,2,2,.22)';
+  ctx.fillRect(0,0,W,H);
+  parts.forEach(p=>{
+    step(p);
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${p.hue},${p.a})`;ctx.fill();
+  });
+  const live=parts.filter(p=>!p.burst);
+  ctx.lineWidth=.55;
+  const maxPairs=1800;
+  let pairs=0;
+  const th=gPoint?170:115;
+  for(let i=0;i<live.length&&pairs<maxPairs;i++){
+    for(let j=i+1;j<live.length&&pairs<maxPairs;j++){
+      const dx=live[i].x-live[j].x,dy=live[i].y-live[j].y,d=dx*dx+dy*dy;
+      if(d<th*th){
+        const dist=Math.sqrt(d);
+        ctx.strokeStyle=`rgba(232,200,114,${.28-dist/th*.28})`;
+        ctx.beginPath();ctx.moveTo(live[i].x,live[i].y);ctx.lineTo(live[j].x,live[j].y);ctx.stroke();
+        pairs++;
+      }
+    }
+  }
+  requestAnimationFrame(draw);
+}
+addEventListener('resize',resize);
+addEventListener('mousemove',e=>{
+  if(gPoint||bursting)return;
+  parts.forEach(p=>{
+    if(p.burst)return;
+    const dx=e.clientX-p.x,dy=e.clientY-p.y,d=Math.hypot(dx,dy);
+    if(d<110&&d>0){p.x-=dx/d*2.2;p.y-=dy/d*2.2}
+  });
+});
+window.setGravity=setGravity;window.releaseGravity=releaseGravity;window.triggerPhoenixBurst=triggerPhoenixBurst;
+resize();draw();
+</script>
+</body>
+</html>
